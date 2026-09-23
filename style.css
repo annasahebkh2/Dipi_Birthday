@@ -214,6 +214,11 @@ button {
   animation: pulseButton 2.2s ease-in-out infinite;
 }
 
+.memory-bubble {
+  margin-top: 0;
+  animation: none;
+}
+
 button:hover {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 22px 44px rgba(255, 109, 163, 0.4);
@@ -235,6 +240,26 @@ button:active {
   gap: 14px;
   flex-wrap: wrap;
   margin-top: 26px;
+}
+
+.reveal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255,255,255,0.8);
+  color: var(--plum);
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 14px 26px rgba(160, 72, 106, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reveal-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(160, 72, 106, 0.12);
 }
 
 .portrait-panel {
@@ -294,8 +319,9 @@ button:active {
   padding: 12px;
   background: rgba(255, 255, 255, 0.12);
   filter: saturate(1.08) contrast(1.05);
-  transform: scale(1.02);
-  transition: transform 0.5s ease;
+  opacity: 1;
+  transform: scale(1);
+  transition: transform 0.5s ease, filter 0.5s ease;
 }
 
 body.show-photo-reveal .portrait-inner {
@@ -367,26 +393,34 @@ body.show-photo-reveal .portrait-inner {
 }
 
 .gallery {
-  display: none;
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   margin-top: 26px;
-  opacity: 0;
-  transform: translateY(30px) scale(0.96);
-  filter: blur(10px);
-  pointer-events: none;
-  max-height: 0;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  pointer-events: auto;
+  max-height: 1000px;
   overflow: hidden;
   transition: opacity 0.6s ease, transform 0.7s ease, filter 0.6s ease, max-height 0.8s ease;
 }
 
 body.show-photo-reveal .gallery {
-  display: grid;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-  max-height: 1000px;
-  pointer-events: auto;
+  animation: revealGallery 0.9s ease both;
+}
+
+@keyframes revealGallery {
+  0% {
+    opacity: 0;
+    transform: translateY(26px) scale(0.96);
+    filter: blur(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .memory-dock {
@@ -395,7 +429,7 @@ body.show-photo-reveal .gallery {
   bottom: 18px;
   transform: translateX(-50%);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   gap: 12px;
   padding: 12px 16px 10px;
@@ -409,83 +443,46 @@ body.show-photo-reveal .gallery {
 
 .memory-bubble {
   position: relative;
-  width: 44px;
-  height: 44px;
-  border: none;
+  width: 52px;
+  height: 52px;
+  border: 2px solid rgba(255,255,255,0.8);
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #fff3f8 0%, #ff7ab3 38%, #ff4d8d 100%);
   color: white;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: 800;
   box-shadow: 0 12px 24px rgba(255, 97, 160, 0.32);
   cursor: pointer;
-  transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
   animation: bubbleFloat 2.8s ease-in-out infinite alternate;
+  transition: box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
   will-change: transform;
 }
 
-.memory-bubble:nth-child(2n) { animation-delay: 0.2s; }
-.memory-bubble:nth-child(3n) { animation-delay: 0.45s; }
-
 @keyframes bubbleFloat {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-6px) scale(1.04); }
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
 }
 
 @keyframes bubbleLift {
   0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-90px) scale(1.18); }
-  100% { transform: translateY(-170px) scale(1.32); }
+  35% { transform: translateY(-60px) scale(1.15); }
+  100% { transform: translateY(-185px) scale(1.3); }
 }
 
 .memory-bubble.is-active {
-  animation: bubbleLift 0.8s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation: bubbleLift 0.9s cubic-bezier(.2, .8, .2, 1) forwards;
   box-shadow: 0 26px 38px rgba(255, 97, 160, 0.45);
 }
 
 .memory-bubble:hover {
-  transform: translateY(-5px) scale(1.06);
+  transform: translateY(-6px) scale(1.08);
 }
 
-.memory-reveal {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  z-index: 40;
-  transition: opacity 0.3s ease;
-}
-
-.memory-reveal.is-visible {
-  opacity: 1;
-}
-
-.memory-card {
-  position: absolute;
-  left: var(--x, 50%);
-  top: var(--y, 50%);
-  width: min(300px, 72vw);
-  aspect-ratio: 0.9;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 28px 60px rgba(176, 59, 102, 0.3);
-  border: 4px solid rgba(255,255,255,0.8);
-  background: rgba(255,255,255,0.18);
-  transform: translate(-50%, -50%) scale(0.2);
-  opacity: 0;
-  transition: transform 0.7s cubic-bezier(.22,1,.36,1), opacity 0.35s ease;
-}
-
-.memory-reveal.is-visible .memory-card {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-}
-
-.memory-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+/* memory reveal removed */
 
 .portrait-photo {
   transition: transform 0.7s cubic-bezier(.22,1,.36,1), filter 0.5s ease;
@@ -496,9 +493,94 @@ body.show-photo-reveal .gallery {
   filter: saturate(1.18) contrast(1.1);
 }
 
+.memories-page {
+  padding-top: 28px;
+}
+
+.memories-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.memories-header h2 {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.1;
+  color: var(--plum);
+}
+
+.memories-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.memory-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.memory-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.38);
+  box-shadow: 0 18px 36px rgba(122, 35, 70, 0.08);
+  padding: 12px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.memory-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 40px rgba(122, 35, 70, 0.12);
+}
+
+.memory-tile img {
+  display: block;
+  width: 100%;
+  height: 290px;
+  object-fit: cover;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.2);
+}
+
+.memory-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--plum);
+  font-weight: 700;
+}
+
+.love-note-page {
+  margin: 26px auto 0;
+  max-width: 720px;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--plum);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.back-link {
+  display: inline-flex;
+  margin-top: 26px;
+  text-decoration: none;
+  color: var(--plum);
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+}
+
 .gallery-card {
   position: relative;
-  min-height: 200px;
+  min-height: 220px;
   border-radius: 24px;
   display: grid;
   place-items: center;
@@ -506,12 +588,29 @@ body.show-photo-reveal .gallery {
   box-shadow: 0 16px 30px rgba(122, 35, 70, 0.08);
   overflow: hidden;
   background: linear-gradient(135deg, rgba(255, 231, 239, 0.8), rgba(255, 243, 194, 0.8));
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, filter 0.35s ease;
+  cursor: pointer;
+}
+
+body.show-photo-reveal .gallery-card {
+  animation: revealGalleryCard 0.7s ease both;
+}
+
+@keyframes revealGalleryCard {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .gallery-card:hover {
-  transform: translateY(-6px) scale(1.01);
+  transform: translateY(-8px) scale(1.02);
   box-shadow: 0 26px 40px rgba(122, 35, 70, 0.12);
+  filter: saturate(1.08);
 }
 
 .gallery-card::before {

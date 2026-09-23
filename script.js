@@ -1,9 +1,6 @@
 const heartContainer = document.querySelector('.hearts');
 const wishButton = document.getElementById('wishButton');
-const gallery = document.getElementById('gallery');
 const memoryDock = document.getElementById('memoryDock');
-const memoryReveal = document.getElementById('memoryReveal');
-const memoryRevealImage = document.getElementById('memoryRevealImage');
 const portraitImage = document.querySelector('.portrait-photo');
 const photoFiles = [
   '3.jpeg',
@@ -21,80 +18,39 @@ const photoFiles = [
   'WhatsApp Image 2026-09-23 at 2.40.56 PM.jpeg'
 ];
 
+if (portraitImage) {
+  portraitImage.src = portraitImage.src || 'images/10.jpeg';
+  portraitImage.classList.remove('is-popping');
+}
+
 if (wishButton) {
   wishButton.dataset.defaultText = wishButton.textContent;
 }
 
-if (gallery) {
-  photoFiles.forEach((fileName, index) => {
-    const card = document.createElement('div');
-    card.className = 'gallery-card';
-    card.style.animationDelay = `${index * 0.08}s`;
 
-    const image = document.createElement('img');
-    image.src = `images/${fileName}`;
-    image.alt = `Our memory ${index + 1}`;
-    image.loading = 'lazy';
+const memoryBubbles = document.querySelectorAll('.memory-bubble');
 
-    card.appendChild(image);
-    gallery.appendChild(card);
-  });
-}
+memoryBubbles.forEach((bubble) => {
+  bubble.addEventListener('click', () => {
+    const selectedFile = bubble.dataset.file;
+    if (!selectedFile) return;
 
-if (memoryDock) {
-  photoFiles.slice(0, 6).forEach((fileName, index) => {
-    const bubble = document.createElement('button');
-    bubble.type = 'button';
-    bubble.className = 'memory-bubble';
-    bubble.dataset.file = fileName;
-    bubble.textContent = '❤';
-    bubble.setAttribute('aria-label', `Open memory ${index + 1}`);
+    if (portraitImage) {
+      portraitImage.src = `images/${selectedFile}`;
+      portraitImage.classList.remove('is-popping');
+      void portraitImage.offsetWidth;
+      portraitImage.classList.add('is-popping');
+    }
 
-    bubble.addEventListener('click', () => {
-      const selectedFile = bubble.dataset.file;
-      if (!selectedFile) return;
+    memoryBubbles.forEach((btn) => btn.classList.remove('is-active'));
+    bubble.classList.add('is-active');
+    launchBurstHearts(bubble);
 
-      const rect = bubble.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-
-      if (memoryReveal && memoryRevealImage) {
-        memoryRevealImage.src = `images/${selectedFile}`;
-        memoryReveal.style.setProperty('--x', `${x}px`);
-        memoryReveal.style.setProperty('--y', `${y}px`);
-        memoryReveal.classList.remove('is-visible');
-        void memoryReveal.offsetWidth;
-        memoryReveal.classList.add('is-visible');
-      }
-
-      if (portraitImage) {
-        portraitImage.src = `images/${selectedFile}`;
-        portraitImage.classList.remove('is-popping');
-        void portraitImage.offsetWidth;
-        portraitImage.classList.add('is-popping');
-      }
-
-      document.querySelectorAll('.memory-bubble').forEach((btn) => {
-        btn.classList.remove('is-active');
-        btn.style.animation = 'bubbleFloat 2.8s ease-in-out infinite alternate';
-      });
-
+    setTimeout(() => {
       bubble.classList.remove('is-active');
-      void bubble.offsetWidth;
-      bubble.classList.add('is-active');
-      bubble.style.animation = 'none';
-      launchBurstHearts(bubble);
-
-      setTimeout(() => {
-        memoryReveal.classList.remove('is-visible');
-        bubble.classList.remove('is-active');
-        bubble.style.animation = 'bubbleFloat 2.8s ease-in-out infinite alternate';
-      }, 1200);
-    });
-
-    memoryDock.appendChild(bubble);
+    }, 1200);
   });
-}
+});
 
 function createHeart() {
   if (!heartContainer) return;
@@ -141,6 +97,8 @@ if (wishButton) {
   wishButton.addEventListener('click', () => {
     const message = 'You are my forever favorite person. Happy Birthday, my love!';
     const defaultText = wishButton.dataset.defaultText || 'Open My Heart';
+
+    document.body.classList.add('show-photo-reveal');
 
     wishButton.textContent = 'My Heart Is Yours';
     wishButton.disabled = true;
